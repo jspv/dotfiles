@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Runs the OS-specific set-defaults.sh script.
+
+DOTFILES="${HOME}/.dotfiles"
+
+case "$OSTYPE" in
+  darwin*)  os_dir="macos" ;;
+  linux*)   os_dir="linux" ;;
+  *)        echo "Unknown OS: $OSTYPE"; exit 1 ;;
+esac
+
+if [[ -f "$DOTFILES/$os_dir/set-defaults.sh" ]]; then
+  exec "$DOTFILES/$os_dir/set-defaults.sh"
+else
+  echo "No set-defaults.sh found for $os_dir"
+  exit 1
+fi

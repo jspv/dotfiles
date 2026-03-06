@@ -1,0 +1,48 @@
+#
+# General
+#
+
+# Detect which `ls` flavor is in use
+if \ls --color "$HOME"> /dev/null 2>&1; then # GNU `ls`
+	ls_colorflag="--color"
+else # macOS `ls`
+	ls_colorflag="-G"
+fi
+
+# Always use color output for `ls`
+alias ls="command ls ${ls_colorflag}"
+
+# List all files, including dot files
+alias la="ls -aFh ${ls_colorflag}"
+
+# List all files colorized in long format
+alias ll="ls -lFh ${ls_colorflag}"
+
+# List all files colorized in long format, including dot files
+alias lla="ls -laFh ${ls_colorflag}"
+
+# List only directories
+alias lld="ls -lF ${ls_colorflag} -d /*"
+
+# Detect which `type` flavor is in use
+if type -all ls > /dev/null 2>&1; then # Likely bash
+	typeflag="-all"
+else # bash
+	typeflag="-a" # Likely zsh
+fi
+
+alias type="type ${typeflag}"
+alias which="type ${typeflag}"
+
+# If search aliases function exists, use it
+if type search-aliases > /dev/null 2>&1; then
+	alias sa="search-aliases"
+fi
+if type search-shellfunctions > /dev/null 2>&1; then
+	alias sf="search-shellfunctions"
+fi
+
+# Source machine-specific aliases (not tracked in git)
+if [ -f "$HOME/.aliases.local" ]; then
+  . "$HOME/.aliases.local"
+fi

@@ -1,0 +1,56 @@
+private
+
+# Git credential file
+.gitconfig.local
+
+# Folder view configuration files
+Desktop.ini
+
+# Thumbnail cache files
+._*
+*~
+Thumbs.db
+
+# Files that might appear on external disks
+ .DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Compiled Python files
+*.pyc
+
+# npm & bower
+bower_components
+node_modules
+npm-debug.log
+
+# IDEs stuff
+.idea
+
+# Mac stuff from https://github.com/github/gitignore/blob/master/Global/macOS.gitignore
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+
+# session
+Session.vim
+
+# auto-generated tag files
+tags

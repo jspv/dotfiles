@@ -1,0 +1,2 @@
+# Dump a plist binary file as text to stdout
+plutil -convert xml1 $1 -o -

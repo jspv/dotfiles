@@ -1,0 +1,6 @@
+# .gitignore for vim dotfiles
+# vim.symlink/bundle/
+vim.symlink/.netrwhist
+**/tmp/
+**/backups/
+**/sessions/

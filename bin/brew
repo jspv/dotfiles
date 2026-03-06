@@ -1,0 +1,18 @@
+#!/bin/bash
+# Brew wrapper: strips pyenv shims from PATH to prevent conflicts
+
+# Auto-detect brew location
+if [ -x /opt/homebrew/bin/brew ]; then
+  BREW_BIN="/opt/homebrew/bin/brew"
+elif [ -x /usr/local/bin/brew ]; then
+  BREW_BIN="/usr/local/bin/brew"
+else
+  # Silently exit — this wrapper is on PATH even on systems without Homebrew
+  exit 1
+fi
+
+if command -v pyenv >/dev/null 2>&1; then
+  /usr/bin/env PATH="${PATH//$(pyenv root)\/shims:/}" "$BREW_BIN" "$@"
+else
+  "$BREW_BIN" "$@"
+fi

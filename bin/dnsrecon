@@ -1,0 +1,3 @@
+#!/bin/sh
+PDIR="$HOME/src/dnsrecon" 
+poetry --directory $PDIR run python ${PDIR}/dnsrecon.py

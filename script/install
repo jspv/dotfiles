@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#
+# Run all dotfiles installers.  This is generally called by the 'dot' executable which
+# is called at the end of the bootstrap script
+
+cd "$(dirname $0)"/..
+
+# find the installers and run them iteratively
+# only search for install.sh in current folder and one level down.  This allows me to safely
+# put samples/test folders in a test directory and know they will not be run.
+
+# IMPORTANT
+# install.sh scripts should be idempotent!!!
+
+# Use /dev/tty for interactive input when available, /dev/null otherwise
+TTY_INPUT=/dev/null
+[ -t 0 ] && [ -e /dev/tty ] && TTY_INPUT=/dev/tty
+
+find . -maxdepth 2 -name install.sh | while read installer; do
+  echo "› running ${installer}"
+  if "${installer}" < "${TTY_INPUT:-/dev/null}"; then
+    echo "› ${installer} done"
+  else
+    echo "› ${installer} FAILED (continuing)"
+  fi
+done
+echo "$0 done"

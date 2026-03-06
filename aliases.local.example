@@ -1,0 +1,12 @@
+# ~/.aliases.local — Machine-specific aliases
+# Sourced by ~/.aliases (shared by both bash and zsh).
+# Copy to ~/.aliases.local and customize.
+
+# Example: Project shortcuts
+# alias work='cd ~/work'
+# alias deploy='ssh deploy@prod.example.com'
+
+# Example: Tool-specific aliases
+# alias k='kubectl'
+# alias dc='docker compose'
+# alias tf='terraform'

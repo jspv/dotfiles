@@ -1,0 +1,10 @@
+# ~/.zshenv.local — Machine-specific environment variables
+# Sourced by every shell (login, interactive, scripts). Keep it minimal.
+# Copy to ~/.zshenv.local and customize.
+
+# Example: Override default editor
+# export EDITOR='code --wait'
+
+# Example: Set credentials/tokens (never put these in the repo)
+# export GITHUB_TOKEN='...'
+# export AWS_PROFILE='work'

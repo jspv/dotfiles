@@ -1,0 +1,89 @@
+#!/bin/bash
+#
+# dot
+#
+# `dot` handles installation, updates, things like that. Run it periodically
+# to make sure you're on the latest and greatest.
+
+set -e
+
+parentDirectory="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P)"
+dotfilesDirectory="$(cd "$( dirname "$parentDirectory" )" && pwd -P)"
+
+export DOTFILES_NO_NET=0
+
+displayUsageAndExit() {
+	echo "dot -- dotfiles management"
+	echo ""
+	echo "Usage: dot [options]"
+	echo ""
+	echo "Options:"
+	echo "  -e, --edit    Open dotfiles directory for editing"
+	echo "  -d, --dump    Dump current Homebrew packages to Brewfile"
+	echo "  --no-net      Skip network-dependent steps"
+	echo "  -h, --help    Show this help message and exit"
+	exit
+}
+
+while test $# -gt 0; do
+	case "$1" in
+		"-h"|"--help")
+			displayUsageAndExit
+			;;
+		"-e"|"--edit")
+			exec "$EDITOR" "$dotfilesDirectory"
+			exit
+			;;
+		"-d"|"--dump")
+			echo "› Dumping Homebrew packages to Brewfile"
+			brew bundle dump --file="$dotfilesDirectory/homebrew/Brewfile" --force
+			echo "  Updated $dotfilesDirectory/homebrew/Brewfile"
+			exit
+			;;
+		"--no-net")
+			DOTFILES_NO_NET=1
+			;;
+		*)
+			echo "Invalid option: $1"
+			displayUsageAndExit
+			;;
+	esac
+	shift
+done
+
+export DOTFILES=$HOME/.dotfiles
+
+# Source shared helpers and check network
+. "$DOTFILES/script/lib.sh"
+require_network
+
+# Determine OS-specific directory
+case "$OSTYPE" in
+  darwin*)  os_dir="macos" ;;
+  linux*)   os_dir="linux" ;;
+  *)        os_dir="" ;;
+esac
+
+# Run OS-specific defaults
+if [[ -n "$os_dir" && -f "$DOTFILES/$os_dir/set-defaults.sh" ]]; then
+  "$DOTFILES/$os_dir/set-defaults.sh"
+fi
+
+# Install homebrew (its install.sh self-guards on non-macOS)
+"$DOTFILES/homebrew/install.sh" 2>&1
+
+# Upgrade homebrew if available (check actual binary, not ~/bin wrapper)
+if [[ -x /opt/homebrew/bin/brew || -x /usr/local/bin/brew ]]; then
+  echo "› brew update"
+  brew update
+
+  # Install packages from Brewfile
+  if [[ -f "$dotfilesDirectory/homebrew/Brewfile" ]]; then
+    echo "› brew bundle"
+    brew bundle --file="$dotfilesDirectory/homebrew/Brewfile"
+  fi
+fi
+
+# Install any necessary software
+echo "› $DOTFILES/script/install"
+"$DOTFILES/script/install"

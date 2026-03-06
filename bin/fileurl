@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+import urllib.parse
+import os
+import sys
+
+def file_to_url_encoded_link(file_path):
+    # Ensure the file path is absolute
+    abs_file_path = os.path.abspath(file_path)
+    
+    # URL encode the file path
+    url_encoded_path = urllib.parse.quote(abs_file_path)
+    
+    # Prepend 'file://' to the URL encoded path
+    file_url = f"file://{url_encoded_path}"
+    
+    return file_url
+
+# Example usage
+if __name__ == "__main__":
+    # Check if a file path is passed as an argument
+    if len(sys.argv) < 2:
+        print("Usage: python script.py <file_path>")
+        sys.exit(1)
+    
+    # Get the file path from the first argument
+    file_path = sys.argv[1]
+    
+    encoded_url = file_to_url_encoded_link(file_path)
+    print(f"{encoded_url}")
+

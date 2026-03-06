@@ -1,0 +1,8 @@
+[project]
+name = "png2cow"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = ["Pillow"]
+
+[project.scripts]
+png2cow = "png2cow:main"

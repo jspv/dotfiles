@@ -1,0 +1,259 @@
+#!/usr/bin/env bash
+#
+# devcontainer-init
+#
+# Scaffolds a .devcontainer/ setup for any project by picking a config
+# from ~/src/devcontainers/.
+#
+# USAGE:
+#
+#   $ devcontainer-init
+#   # => sets up devcontainer in current directory
+#
+#   $ devcontainer-init /path/to/project
+#   # => sets up devcontainer in the given directory
+
+set -euo pipefail
+
+DEVCONTAINERS_DIR="$HOME/src/devcontainers"
+
+# ── helpers ──────────────────────────────────────────────────────────────────
+
+die() {
+  echo "error: $*" >&2
+  exit 1
+}
+
+# Show a colored diff of proposed content ($2, a string) vs an existing file ($1).
+# Prints the diff and returns 0 if they differ (or file is new), 1 if identical.
+show_diff() {
+  local existing_file="$1"
+  local proposed_content="$2"
+  local proposed_tmp
+  proposed_tmp="$(mktemp)"
+  # shellcheck disable=SC2064
+  trap "rm -f $(printf '%q' "$proposed_tmp")" RETURN
+  printf '%s\n' "$proposed_content" > "$proposed_tmp"
+
+  if [[ ! -f "$existing_file" ]]; then
+    git diff --no-index --color=always -- /dev/null "$proposed_tmp" \
+      | sed "s|^--- /dev/null|--- (new file)|;s|^+++ [^ ]*|+++ $existing_file|" \
+      || true
+    return 0
+  fi
+
+  if diff -q "$existing_file" "$proposed_tmp" > /dev/null 2>&1; then
+    return 1   # identical — no diff shown
+  fi
+
+  git diff --no-index --color=always -- "$existing_file" "$proposed_tmp" \
+    | sed "s|^+++ [^ ]*|+++ $existing_file (proposed)|" \
+    || true
+  return 0
+}
+
+usage() {
+  echo "Usage: devcontainer-init [path]"
+  echo ""
+  echo "Scaffolds .devcontainer/ for a project using a config from"
+  echo "$DEVCONTAINERS_DIR."
+  echo ""
+  echo "Options:"
+  echo "  -h, --help    Show this help message and exit"
+  exit 0
+}
+
+# ── arg parsing ───────────────────────────────────────────────────────────────
+
+TARGET_DIR=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help) usage ;;
+    -*) die "unknown option: $1" ;;
+    *)
+      [[ -n "$TARGET_DIR" ]] && die "too many arguments"
+      TARGET_DIR="$1"
+      ;;
+  esac
+  shift
+done
+
+TARGET_DIR="${TARGET_DIR:-$PWD}"
+[[ -d "$TARGET_DIR" ]] || die "directory not found: $TARGET_DIR"
+TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"   # absolute path
+
+# ── pick config ───────────────────────────────────────────────────────────────
+
+[[ -d "$DEVCONTAINERS_DIR" ]] || die "devcontainers directory not found: $DEVCONTAINERS_DIR"
+
+configs=()
+while IFS= read -r _cfg; do
+  configs+=("$_cfg")
+done < <(find "$DEVCONTAINERS_DIR" -mindepth 1 -maxdepth 1 -type d -not -name '.*' -exec basename {} \; | sort)
+
+[[ ${#configs[@]} -gt 0 ]] || die "no configs found in $DEVCONTAINERS_DIR"
+
+if [[ ${#configs[@]} -eq 1 ]]; then
+  CONFIG_NAME="${configs[0]}"
+  echo "Using config: $CONFIG_NAME"
+else
+  echo "Select a devcontainer config:"
+  PS3="Config: "
+  select CONFIG_NAME in "${configs[@]}"; do
+    [[ -n "$CONFIG_NAME" ]] && break
+    echo "Invalid selection."
+  done
+fi
+
+[[ -n "$CONFIG_NAME" ]] || die "no config selected"
+
+CONFIG_DIR="$DEVCONTAINERS_DIR/$CONFIG_NAME"
+
+# ── pick mode ─────────────────────────────────────────────────────────────────
+
+MODE=""
+echo ""
+echo "Select setup mode:"
+PS3="Mode: "
+select MODE in "image (reference pre-built image)" "copy (copy Dockerfile + scripts)"; do
+  case "$REPLY" in
+    1) MODE="image"; break ;;
+    2) MODE="copy";  break ;;
+    *) echo "Invalid selection." ;;
+  esac
+done
+
+[[ -n "$MODE" ]] || die "no mode selected"
+
+# ── existing config check ─────────────────────────────────────────────────────
+
+DEVCONTAINER_DIR="$TARGET_DIR/.devcontainer"
+DEVCONTAINER_JSON="$DEVCONTAINER_DIR/devcontainer.json"
+PROJECT_NAME="$(basename "$TARGET_DIR")"
+
+if [[ "$MODE" == "image" ]]; then
+  PROPOSED_JSON="$(cat <<JSON
+{
+  "name": "$PROJECT_NAME",
+  "image": "$CONFIG_NAME:latest",
+  "remoteUser": "dev",
+  "runArgs": ["--userns=keep-id"],
+  "mounts": [
+    {
+      "source": "\${localEnv:HOME}/src/dotfiles",
+      "target": "/home/dev/.dotfiles",
+      "type": "bind",
+      "readonly": true
+    },
+    {
+      "source": "$CONFIG_NAME-home",
+      "target": "/home/dev",
+      "type": "volume"
+    }
+  ],
+  "forwardPorts": [9222],
+  "postCreateCommand": "/usr/local/bin/postCreate.sh",
+  "remoteEnv": { "DOTFILES_ROOT": "/home/dev/.dotfiles" }
+}
+JSON
+)"
+fi
+
+if [[ -d "$DEVCONTAINER_DIR" ]]; then
+  echo ""
+  echo "⚠  .devcontainer/ already exists in $TARGET_DIR"
+  echo ""
+
+  HAS_DIFF=0
+
+  if [[ "$MODE" == "image" ]]; then
+    if show_diff "$DEVCONTAINER_JSON" "$PROPOSED_JSON"; then
+      HAS_DIFF=1
+    fi
+  else
+    # copy mode: diff each file that would be written
+    for src_file in "$CONFIG_DIR/Dockerfile" "$CONFIG_DIR/postCreate.sh" \
+                    "$CONFIG_DIR/setup-dotfiles.sh" "$CONFIG_DIR/update-tools.sh" \
+                    "$CONFIG_DIR/entrypoint.sh"; do
+      [[ -f "$src_file" ]] || continue
+      dest="$TARGET_DIR/$(basename "$src_file")"
+      content="$(cat "$src_file")"
+      if show_diff "$dest" "$content"; then
+        HAS_DIFF=1
+      fi
+    done
+    src_json="$CONFIG_DIR/.devcontainer/devcontainer.json"
+    if [[ -f "$src_json" ]]; then
+      content="$(cat "$src_json")"
+      if show_diff "$DEVCONTAINER_JSON" "$content"; then
+        HAS_DIFF=1
+      fi
+    fi
+  fi
+
+  if [[ $HAS_DIFF -eq 0 ]]; then
+    echo "No changes — .devcontainer/ is already up to date."
+    exit 0
+  fi
+
+  echo ""
+  read -r -p "Overwrite? [y/N] " answer
+  [[ "$answer" =~ ^[Yy]$ ]] || { echo "Aborted."; exit 0; }
+fi
+
+# ── write files ───────────────────────────────────────────────────────────────
+
+mkdir -p "$DEVCONTAINER_DIR"
+
+if [[ "$MODE" == "image" ]]; then
+  printf '%s\n' "$PROPOSED_JSON" > "$DEVCONTAINER_JSON"
+  echo "✓ Wrote $DEVCONTAINER_JSON"
+else
+  # copy mode: scripts (Dockerfile, postCreate.sh, etc.) go to the project root,
+  # mirroring the source repo layout where those files live alongside .devcontainer/.
+  for src_file in "$CONFIG_DIR/Dockerfile" "$CONFIG_DIR/postCreate.sh" \
+                  "$CONFIG_DIR/setup-dotfiles.sh" "$CONFIG_DIR/update-tools.sh" \
+                  "$CONFIG_DIR/entrypoint.sh"; do
+    [[ -f "$src_file" ]] || continue
+    dest="$TARGET_DIR/$(basename "$src_file")"
+    cp "$src_file" "$dest"
+    chmod --reference="$src_file" "$dest" 2>/dev/null || chmod "$(stat -f '%A' "$src_file")" "$dest" 2>/dev/null || true
+    echo "✓ Copied $(basename "$src_file")"
+  done
+  src_json="$CONFIG_DIR/.devcontainer/devcontainer.json"
+  if [[ -f "$src_json" ]]; then
+    cp "$src_json" "$DEVCONTAINER_JSON"
+    echo "✓ Copied .devcontainer/devcontainer.json"
+  fi
+fi
+
+# ── build check (image mode only) ────────────────────────────────────────────
+
+if [[ "$MODE" == "image" ]]; then
+  if ! command -v podman &>/dev/null; then
+    echo ""
+    echo "Note: podman not found — skipping image build check."
+  elif ! podman image exists "$CONFIG_NAME:latest" 2>/dev/null; then
+    echo ""
+    echo "Image $CONFIG_NAME:latest is not present locally."
+    read -r -p "Build it now? [Y/n] " answer
+    if [[ -z "$answer" || "$answer" =~ ^[Yy]$ ]]; then
+      echo "Building $CONFIG_NAME:latest..."
+      if (cd "$CONFIG_DIR" && podman build -t "$CONFIG_NAME:latest" .); then
+        echo "✓ Built $CONFIG_NAME:latest"
+      else
+        echo "error: build failed — check output above." >&2
+        exit 1
+      fi
+    else
+      echo "Skipped. Build it later with:"
+      echo "  cd \"$CONFIG_DIR\" && podman build -t $CONFIG_NAME:latest ."
+    fi
+  else
+    echo "✓ Image $CONFIG_NAME:latest already present."
+  fi
+fi
+
+echo ""
+echo "Done. Open $TARGET_DIR in VS Code and choose 'Reopen in Container'."

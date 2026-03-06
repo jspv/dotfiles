@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#
+# Tests return codes from URLS passed in from stdin
+# (the -t 5 is a 5 second timer, if no URLs arrive in 5seconds, it will quit)
+while read -t 5 LINE; do
+  curl -o /dev/null --silent --head --write-out "%{http_code} $LINE\n" "$LINE"
+done

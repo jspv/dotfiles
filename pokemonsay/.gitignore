@@ -1,0 +1,4 @@
+# Downloaded sprites and build artifacts
+scrapped-data/
+uninstall.sh
+.venv/

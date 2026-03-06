@@ -1,0 +1,9 @@
+# check certficiate
+# $1 - server to check
+# $@ - passed to openssl as additional parameters.  e.g. -proxy proxyhost:port
+# command connects to the desired website and pipes the certificate in PEM format on to another openssl command that reads and parses the details.
+# (Note that "redundant" -servername parameter is necessary to make openssl do a request with SNI support.)
+server=$1; shift
+echo | 
+    openssl s_client -servername $server -connect $server:443 $@ 2>/dev/null | \
+    openssl x509 -inform pem -noout -text

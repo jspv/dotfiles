@@ -1,0 +1,23 @@
+# Usage: search-aliases <search1> [search2] ...
+# Searches aliases for each of the terms provided
+function search-aliases() {
+  typeset -A grepaliases
+  typeset -A newaliases
+  grepaliases=( "${(@kv)aliases}" )
+  # loop through each of the arguments and keep the aliases that match
+  for arg in $@; do
+    for key value in ${(kv)grepaliases}; do
+      # :u markes them as uppercase to do insenstive matching
+      if [[ ${key:u} = *${arg:u}* ]] || [[ ${value:u} = *${arg:u}* ]]; then
+        newaliases+=("$key" "$value")
+      fi
+    done
+    grepaliases=( "${(@kv)newaliases}" )
+    newaliases=()
+  done
+
+  # output similar to a alias | grep -i
+  for key in ${(ki)grepaliases}; do
+    print "$key='${grepaliases[$key]}'"
+  done
+}

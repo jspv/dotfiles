@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# Find files with Windows line endings (and convert them to Unix in force mode)
+#
+# Usage:
+#   crlf [file] [--force]
+
+force=0
+
+_crlf_file() {
+  grep -q $'\x0D' "$1" && echo "$1" && [ "$2" -eq 1 ] && dos2unix "$1"
+}
+
+# Single file
+if [ -n "$1" ] && [ "$1" != "--force" ]; then
+  [ "$2" = "--force" ] && force=1
+  _crlf_file "$1" "$force"
+  exit
+fi
+
+# All files
+[ "$1" = "--force" ] && force=1
+while IFS= read -r file; do
+  _crlf_file "$file" "$force"
+done < <(find . -type f -not -path "*/.git/*" -not -path "*/node_modules/*" -exec file {} + | grep ASCII | cut -d: -f1)

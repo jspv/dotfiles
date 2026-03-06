@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+#
+# bootstrap installs things.
+# This scripts should be in the 'scripts' subdirectory of the dotfiles root.
+# it will create a symlink from $DOTFILES_ROOT to the actual dotfiles directory
+# if necessary and it will then populate the other necessary dotfile symlinks
+
+# force exit on any non-zero status
+set -e
+
+cd "$(dirname "$0")"/..
+DOTFILES_TRUE_ROOT="$(pwd -P)"
+DOTFILES_ROOT="$HOME/.dotfiles"
+
+# Parse arguments
+force_mode=false
+export DOTFILES_NO_NET=0
+for arg in "$@"; do
+  case "$arg" in
+    -f|--force) force_mode=true ;;
+    --no-net)   DOTFILES_NO_NET=1 ;;
+  esac
+done
+
+# If --force, set overwrite_all for link_files
+if [ "$force_mode" = true ]; then
+  overwrite_all=true
+fi
+
+. "$(dirname "$0")/lib.sh"
+
+echo ''
+
+# Check network connectivity early
+require_network
+
+# If proxy vars got us through the network check, offer to persist them
+persist_proxy
+
+# Check required dependencies
+for cmd in git; do
+  if ! command -v "$cmd" &>/dev/null; then
+    fail "$cmd is required but not found"
+  fi
+done
+
+# Warn about optional dependencies
+for cmd in zsh fortune; do
+  if ! command -v "$cmd" &>/dev/null; then
+    info "Optional: $cmd not found (some features will be unavailable)\n"
+  fi
+done
+
+# Initialize submodules if needed
+if git submodule status | grep -q '^-'; then
+  info "Initializing git submodules...\n"
+  git submodule update --init --recursive
+  success "Submodules initialized"
+fi
+
+get_abs_filename() {
+  # $1 : relative filename, returns the physical loction of file, directory
+  # or link
+  if [[ -d "$1" ]] || [[ -L "$1" ]]; then
+    rawdir="$(cd "$1" && pwd -P)"
+  elif [[ -f "$1" ]]; then
+    rawdir="$(cd "$(dirname "$1")" && pwd -P)"
+  else
+    >&2 echo "${FUNCNAME[0]}: '$1' is not a file or directory"
+    return 1
+  fi
+  echo "$rawdir"
+}
+
+check_where_running() {
+  info 'Checking where we are\n\n'
+  printf 'Bootstrap will ensure you have git setup and build the necessary\n'
+  printf 'symlinks to the dotfiles, it MUST be running from dotfiles directory,\n'
+  printf 'not the scripts subdir.  Press a key to continue or ctrl-c to break\n\n'
+  user " - if $DOTFILES_TRUE_ROOT is not your DOTFILE ROOT, abort now\n"
+  read -e -n 1 inputkey
+  if [ "$inputkey" = "q" ] || [ "$inputkey" = "n" ] || [ "$inputkey" = "x" ]; then
+    exit
+  fi
+}
+
+install_dotfiles () {
+
+  # ensure that the dotfiles are either at ~/.dotfiles or are symlinked from there
+  # Get this file's physical location if there is a link or directory at ~/.dotfiles
+  # go there and get its physical location.  If they match good.  If they don't
+  # error out
+  if [[ -e $DOTFILES_ROOT ]]; then
+    absdot=$(get_abs_filename "$DOTFILES_ROOT")
+    if [[ "$absdot" != "$DOTFILES_TRUE_ROOT" ]]; then
+      >&2 echo "There is a already a link or directory at '$DOTFILES_ROOT' and it is differnt from '$DOTFILES_TRUE_ROOT' where this script is running from"
+      exit
+    fi
+    info " - Looks like '$DOTFILES_ROOT' is in place, good"
+  else
+    link_files "$DOTFILES_TRUE_ROOT" "$DOTFILES_ROOT"
+  fi
+
+  files=()
+  while IFS=  read -r -d '' file
+  do
+    files+=("$file")
+    # Have find output a \0 separated list of files and consuming them in a while read loop:
+  done < <(find "$DOTFILES_TRUE_ROOT" -maxdepth 2 -name \*.symlink -print0)
+
+  for src in "${files[@]}"
+  do
+    dst="$HOME/.$(basename "${src%.*}")"
+    link_files "$src" "$dst"
+  done
+
+  # Symlink bin/ to ~/bin so scripts are on PATH
+  link_files "$DOTFILES_TRUE_ROOT/bin" "$HOME/bin"
+
+  # Create ~/.local/bin for per-environment generated scripts
+  mkdir -p "$HOME/.local/bin"
+}
+
+if [ "$force_mode" != true ]; then
+  check_where_running
+fi
+install_dotfiles
+
+success "Finished installing dotfiles, running 'dot' which will run installers"
+echo ''
+if bin/dot | while read -r data; do info "$data"; echo ''; done
+then
+  success "installers completed"
+else
+  fail "error running installers"
+fi
+
+echo ''
+echo '  All installed!'

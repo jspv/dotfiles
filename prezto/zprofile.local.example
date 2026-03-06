@@ -1,0 +1,16 @@
+# ~/.zprofile.local — Machine-specific login shell config
+# Sourced once per login session, before zshrc. Use for PATH and login greeting.
+# Copy to ~/.zprofile.local and customize.
+
+# Pokemonsay greeting — set $pokemon to match this host (default: Gengar)
+# case $HOST in
+#   myhost*)  pokemon="Pikachu" ;;
+# esac
+
+# Extra PATH entries for this machine
+# path=(
+#   $HOME/.cargo/bin(N)
+#   $HOME/go/bin(N)
+#   /opt/cuda/bin(N)
+#   $path
+# )

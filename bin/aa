@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Quick shortcut to Claude Code
+#
+# USAGE:
+#
+#   $ aa
+#   # => opens Claude Code with auto-accept permissions
+#
+#   $ aa "fix the tests"
+#   # => opens Claude Code with a prompt
+#
+claude --dangerously-skip-permissions "$@"

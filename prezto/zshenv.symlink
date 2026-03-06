@@ -1,0 +1,19 @@
+#
+# Defines environment variables.
+#
+# Used for setting user's environment variables; it should not contain commands that produce output
+# or assume the shell is attached to a tty. This file will always be sourced.
+#
+# Keep it short, every shell executes it.
+
+# Snapshot system PATH before dotfiles modify it.
+# Missing entries are re-appended at the end of zshrc.
+typeset -ga _system_path=( $path )
+
+# Ensure that a non-login, non-interactive shell has a defined environment.
+if [[ ( "$SHLVL" -eq 1 && ! -o LOGIN ) && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprofile"
+fi
+
+# Source machine-specific env vars (not tracked in git)
+[[ -f ~/.zshenv.local ]] && source ~/.zshenv.local

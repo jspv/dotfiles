@@ -1,0 +1,25 @@
+#!/usr/bin/env zsh
+#set -x
+# one liner bash magic to dump all certs in the chain
+# openssl s_client -showcerts -verify 5 -connect de.wikipedia.org:443 < /dev/null | awk '/BEGIN/,/END/{ if(/BEGIN/){a++}; out="cert"a".crt"; print >out}' && for cert in *.crt; do newname=$(openssl x509 -noout -subject -in $cert | sed -n 's/^.*CN=\(.*\)$/\1/; s/[ ,.*]/_/g; s/__/_/g; s/^_//g;p').pem; mv $cert $newname; done
+#
+# To dump all certs in the chain to the current dir as cert${chain_number}.pem
+# openssl s_client -showcerts -verify 5 -connect your_host:443 < /dev/null | awk '/BEGIN/,/END/{ if(/BEGIN/){a++}; out="cert"a".pem"; print >out}' 
+#
+# rename them to their common name:
+# for cert in *.pem; do newname=$(openssl x509 -noout -subject -in $cert | sed -n 's/^.*CN=\(.*\)$/\1/; s/[ ,.*]/_/g; s/__/_/g; s/^_//g;p').pem; mv $cert $newname; done
+#openssl x509 -in <(
+#
+
+# split on '%' but read to EOF (-d '')
+IFS=% read -r -d '' -A certs < <(
+#IFS=% read -r -A certs < <(
+openssl s_client -showcerts -verify 8 -servername $1 -connect $1:443 < /dev/null 2> /dev/null |
+	# Seperate each certificate with a % character
+	awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/{print; if(/END CERTIFICATE/){print "%"}}'
+)
+# remove last item in the arrray, just the final newline
+certs[-1]=()
+for cert in "${certs[@]}"; do 
+	openssl x509 -noout -subject -enddate <<< "$cert" | sed -n 's/^.*CN\s*=\s*\(.*\)$/\1/; s/notAfter=\(.*\)$/ \(\1\)/;p'  | sed 'N;s/\n//;P;D'
+done

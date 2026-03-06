@@ -1,0 +1,7 @@
+#!/bin/sh 
+PDIR="$HOME/src/fierce" 
+
+if [ $# -eq 0 ]; then
+  set -- --help
+fi
+poetry --directory $PDIR run python ${PDIR}/fierce/fierce.py $@

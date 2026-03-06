@@ -1,0 +1,9 @@
+#!/bin/sh
+echo $0 $* > /tmp/spew.out
+echo "Env..." >> /tmp/spew.out
+set >> /tmp/spew.out
+echo "Env done" >> /tmp/spew.out
+echo "Id" >> /tmp/spew.out
+id >> /tmp/spew.out
+echo "=================================" >> /tmp/spew.out
+while read line; do echo $line >> /tmp/spew.out; done

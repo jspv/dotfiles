@@ -1,0 +1,14 @@
+# ~/.zshrc.local — Machine-specific interactive shell config
+# Sourced for every interactive shell. Use for tools, completions, and integrations.
+# Copy to ~/.zshrc.local and customize.
+
+# Example: Tool initialization
+# eval "$(pyenv init -)"
+# eval "$(rbenv init -)"
+# eval "$(direnv hook zsh)"
+
+# Example: Machine-specific aliases
+# alias proj='cd ~/work/my-project'
+
+# Example: Extra completions
+# fpath=(/opt/homebrew/share/zsh/site-functions $fpath)

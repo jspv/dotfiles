@@ -1,0 +1,85 @@
+#
+# Executes commands at the start of an interactive session.
+#
+# Used for setting user's interactive shell configuration and executing commands, will be sourced
+# when starting as an interactive shell.
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+# JSP see: https://unix.stackexchange.com/questions/386113/zsh-expansion-syntax for
+# details on the ${(%):-%n} stuff
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Dotfiles root — used by auto-discovery below
+export DOTFILES=$HOME/.dotfiles
+
+# Build fpath: prepend $DOTFILES/functions + all topic dirs (before prezto init
+# so compinit picks up topic completion files)
+fpath=($DOTFILES/functions $DOTFILES/*/(N) $fpath)
+
+# Source Prezto.
+if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+fi
+
+# Autoload custom functions
+if [[ -d $DOTFILES/functions ]]; then
+  autoload $DOTFILES/functions/*(:t)
+fi
+
+# Ensure path arrays do not contain duplicates.
+typeset -gU fpath path
+
+# --- Auto-discovery of topic *.zsh files ---
+# Three-pass loading: path.zsh first, then general *.zsh, then completion.zsh last.
+
+# 1) PATH additions
+for file in $DOTFILES/*/path.zsh(N); do
+  source "$file"
+done
+
+# 2) Everything except path.zsh and completion.zsh
+for file in $DOTFILES/*/*.zsh(N); do
+  [[ "$file" == */path.zsh ]] && continue
+  [[ "$file" == */completion.zsh ]] && continue
+  source "$file"
+done
+
+# 3) Completions (after compinit from prezto)
+for file in $DOTFILES/*/completion.zsh(N); do
+  source "$file"
+done
+unset file
+
+# Load more aliases (Added by JSP)
+[[ -f ~/.aliases ]] && . ~/.aliases
+
+# JSP Custom colors
+if [[ "$OSTYPE" == darwin* ]]; then
+  export LSCOLORS=exgxfeaeBxxehehbadacea
+else
+  if (( $+commands[dircolors] )) && [[ -f "$DOTFILES/dircolors-solarized/dircolors.256dark" ]]; then
+    eval "$(dircolors "$DOTFILES/dircolors-solarized/dircolors.256dark")"
+    zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+  fi
+fi
+
+# custom autosuggest color
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'
+
+# Re-append any system PATH entries lost during dotfiles setup
+if (( ${#_system_path} )); then
+  for _p in $_system_path; do
+    (( ${path[(I)$_p]} )) || path+=( $_p )
+  done
+  unset _p _system_path
+fi
+
+# Source machine-specific zsh config (not tracked in git)
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

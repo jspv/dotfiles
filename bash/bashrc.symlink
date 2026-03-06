@@ -1,0 +1,5 @@
+# Guard against re-entry (bash_profile may trigger subshells that re-source bashrc)
+if [[ -n "$PS1" && -z "$_BASH_PROFILE_LOADED" ]]; then
+  export _BASH_PROFILE_LOADED=1
+  source ~/.bash_profile
+fi
