@@ -1,0 +1,4 @@
+*.local
+*.local.json
+*.plist.bak
+!com.googlecode.iterm2.plist

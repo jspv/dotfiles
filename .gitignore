@@ -21,7 +21,6 @@ docs/plans/
 
 # Machine-specific files kept locally but not tracked
 pypirc.symlink
-iterm2/
 
 # Vim - dead plugins
 vim/vim.symlink/pack/kite/

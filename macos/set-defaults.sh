@@ -43,18 +43,6 @@ EOD
 fi
 
 ###############################################################################
-# iTerm2 (disabled — prefs managed locally, not in repo)                      #
-###############################################################################
-
-# # Point iTerm2 at a shared prefs directory
-# defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "$HOME/.dotfiles/iterm2"
-# defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
-# defaults write com.googlecode.iterm2 NoSyncNeverRemindPrefsChangesLostForFile -int 1
-# defaults write com.googlecode.iterm2 "NoSyncNeverRemindPrefsChangesLostForFile_selection" -int 1
-# defaults write com.googlecode.iterm2 PromptOnQuit -bool false
-# success 'iTerm2 defaults'
-
-###############################################################################
 # Dock                                                                        #
 ###############################################################################
 
