@@ -33,6 +33,7 @@ fi
 
 # Symlink each tracked config subdir into ~/.config
 for dir in "$CONFIG_DIR"/*/; do
+  [[ -d "$dir" ]] || continue
   name="$(basename "$dir")"
   # Skip legacy config.symlink dir (untracked app data)
   [[ "$name" == "config.symlink" ]] && continue
