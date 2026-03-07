@@ -22,7 +22,9 @@ alias ll="ls -lFh ${ls_colorflag}"
 alias lla="ls -laFh ${ls_colorflag}"
 
 # List only directories
-alias lld="ls -lF ${ls_colorflag} -d /*"
+alias lld="ls -l ${ls_colorflag} -d */"
+
+alias llat="ls -latF ${ls_colorflag}"
 
 # Detect which `type` flavor is in use
 if type -all ls > /dev/null 2>&1; then # Likely bash
