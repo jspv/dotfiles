@@ -6,7 +6,10 @@
 #
 
 # Return if requirements are not found.
-if (( ! $+commands[ssh-agent] )); then
+# On macOS, the launchd-managed ssh-agent provides native Keychain integration
+# (UseKeychain/AddKeysToAgent in ~/.ssh/config). This module would interfere by
+# starting its own agent and calling plain ssh-add without --apple-use-keychain.
+if [[ "$OSTYPE" == darwin* ]] || (( ! $+commands[ssh-agent] )); then
   return 1
 fi
 
