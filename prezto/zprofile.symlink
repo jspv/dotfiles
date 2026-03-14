@@ -43,7 +43,8 @@ fi
 #
 
 
-# All PATH setup is in system/path.zsh (works for both login and non-login shells).
+# Most PATH setup is in system/path.zsh (works for both login and non-login shells).
+path=($HOME/.local/bin(N) $path)
 
 #
 # Less
