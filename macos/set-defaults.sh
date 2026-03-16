@@ -46,11 +46,18 @@ fi
 # Dock                                                                        #
 ###############################################################################
 
+# Autohide with no delay, snappy animation
 defaults write com.apple.dock autohide -bool true
+defaults write com.apple.dock autohide-delay -float 0
+defaults write com.apple.dock autohide-time-modifier -float 0.5
+# Icon size and magnification
 defaults write com.apple.dock tilesize -int 50
 defaults write com.apple.dock magnification -bool true
+# Hide recent apps, minimize into app icon
 defaults write com.apple.dock show-recents -bool false
 defaults write com.apple.dock minimize-to-application -bool true
+# Group windows by application in Mission Control
+defaults write com.apple.dock expose-group-by-app -bool true
 success 'Dock defaults'
 
 ###############################################################################
@@ -62,6 +69,8 @@ defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
 # Show path bar and status bar
 defaults write com.apple.finder ShowPathbar -bool true
 defaults write com.apple.finder ShowStatusBar -bool true
+# Show full POSIX path in window title
+defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 # Show all file extensions
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 # Search the current folder by default
@@ -74,6 +83,15 @@ defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 success 'Finder defaults'
+
+###############################################################################
+# Save/Open dialogs                                                           #
+###############################################################################
+
+# Expand save and open panels by default
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
+success 'Save/Open dialog defaults'
 
 ###############################################################################
 # Keyboard                                                                    #
@@ -118,9 +136,13 @@ success 'Screenshot defaults'
 # Activity Monitor                                                            #
 ###############################################################################
 
+# Open main window on launch
 defaults write com.apple.ActivityMonitor OpenMainWindow -bool true
+# Show CPU usage in Dock icon (5 = CPU history graph)
 defaults write com.apple.ActivityMonitor IconType -int 5
+# Show all processes
 defaults write com.apple.ActivityMonitor ShowCategory -int 0
+# Sort by CPU usage descending
 defaults write com.apple.ActivityMonitor SortColumn -string "CPUUsage"
 defaults write com.apple.ActivityMonitor SortDirection -int 0
 success 'Activity Monitor defaults'
