@@ -238,15 +238,6 @@
         followTags = true
         default = current
 
-# Use separate file for username / github token / etc
-[include]
-        path = ~/.gitconfig.local
-
-[filter "lfs"]
-        clean = git lfs clean %f
-        smudge = git lfs smudge %f
-        required = true
-
 [fetch]
         prune = true
 

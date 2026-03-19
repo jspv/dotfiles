@@ -36,7 +36,7 @@ while test $# -gt 0; do
 			;;
 		"-d"|"--dump")
 			echo "› Dumping Homebrew packages to Brewfile"
-			brew bundle dump --file="$dotfilesDirectory/homebrew/Brewfile" --force
+			brew bundle dump --file="$dotfilesDirectory/homebrew/Brewfile" --force --no-vscode
 			echo "  Updated $dotfilesDirectory/homebrew/Brewfile"
 			exit
 			;;
