@@ -85,4 +85,6 @@ fi
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # VS Code shell integration - must come after p10k
-[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+if [[ "$TERM_PROGRAM" == "vscode" ]] && (( $+commands[code] )); then
+  . "$(code --locate-shell-integration-path zsh)"
+fi

@@ -56,7 +56,7 @@ git_name="$(git config --file "$GITCONFIG" user.name 2>/dev/null)"
 git_email="$(git config --file "$GITCONFIG" user.email 2>/dev/null)"
 
 if [ -z "$git_name" ] || [ -z "$git_email" ]; then
-  if ! [ -t 0 ]; then
+  if ! [ -t 0 ] || ! [ -t 1 ]; then
     info "Git identity not set — run 'dot' interactively to configure user.name and user.email\n"
     exit 0
   fi
