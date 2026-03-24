@@ -25,7 +25,7 @@ bind-key C-a last-window
 
 # Screen-like window kill
 bind k confirm-before -p "kill-window #W? (y/n)" kill-window
-bind \ confirm-before -p "kill-server? (y/n)" kill-server
+bind '\' confirm-before -p "kill-server? (y/n)" kill-server
 
 # Screen-like window list (tmux default " is split-window)
 bind '"' choose-window
