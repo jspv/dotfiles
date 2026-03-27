@@ -75,3 +75,13 @@ if [[ -o INTERACTIVE && -t 2 ]]; then
     print
   fi
 fi >&2
+
+# Show available tmux sessions on login
+if (( $+commands[tmux] )) && [[ -z "$TMUX" ]]; then
+  if tmux list-sessions 2>/dev/null | grep -q .; then
+    echo "Available tmux sessions:"
+    tmux list-sessions
+    echo
+  fi
+fi
+
