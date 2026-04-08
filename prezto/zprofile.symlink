@@ -76,12 +76,17 @@ if [[ -o INTERACTIVE && -t 2 ]]; then
   fi
 fi >&2
 
-# Show available tmux sessions on login
+# Show available tmux sessions on login and offer to attach
 if (( $+commands[tmux] )) && [[ -z "$TMUX" ]]; then
   if tmux list-sessions 2>/dev/null | grep -q .; then
     echo "Available tmux sessions:"
     tmux list-sessions
     echo
+    read -k 1 "reply?Attach to tmux session? [y/N] "
+    echo
+    if [[ "$reply" == [yY] ]]; then
+      exec tmux attach
+    fi
   fi
 fi
 
