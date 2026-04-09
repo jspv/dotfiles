@@ -118,18 +118,9 @@
   )
 
   # Defines character set used by powerlevel10k.
-  # Auto-detect Nerd Fonts version: v3 renamed font files from "XNF" to "XNerdFont".
-  # Check standard font dirs (macOS ~/Library/Fonts, Linux /usr/share/fonts/**/,
-  # /usr/local/share/fonts/**/, ~/.local/share/fonts/**/).
-  () {
-    setopt local_options null_glob
-    local f=({~/Library/Fonts,/usr/share/fonts,/usr/local/share/fonts,~/.local/share/fonts}/**/*NerdFont*.{ttf,otf})
-    if (( $#f )); then
-      typeset -g POWERLEVEL9K_MODE=nerdfont-v3
-    else
-      typeset -g POWERLEVEL9K_MODE=nerdfont-complete
-    fi
-  }
+  # Default to nerdfont-v3 — glyphs are rendered by the local terminal's font.
+  # Override in ~/.p10k.zsh.local: typeset -g POWERLEVEL9K_MODE=nerdfont-complete
+  typeset -g POWERLEVEL9K_MODE=nerdfont-v3
   # When set to `moderate`, some icons will have an extra space after them. This is meant to avoid
   # icon overlap when using non-monospace fonts. When set to `none`, spaces are not added.
   typeset -g POWERLEVEL9K_ICON_PADDING=none
@@ -1742,6 +1733,11 @@
   # can slow down prompt by 1-2 milliseconds, so it's better to keep it turned off unless you
   # really need it.
   typeset -g POWERLEVEL9K_DISABLE_HOT_RELOAD=true
+
+  # Source machine-specific overrides (e.g., POWERLEVEL9K_MODE for NF v2 hosts).
+  # Example ~/.p10k.zsh.local:
+  #   typeset -g POWERLEVEL9K_MODE=nerdfont-complete
+  [[ ! -f ~/.p10k.zsh.local ]] || source ~/.p10k.zsh.local
 
   # If p10k is already loaded, reload configuration.
   # This works even with POWERLEVEL9K_DISABLE_HOT_RELOAD=true.
