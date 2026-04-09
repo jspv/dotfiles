@@ -117,8 +117,19 @@
     # example               # example user-defined segment (see prompt_example function below)
   )
 
-  # Defines character set used by powerlevel10k. It's best to let `p10k configure` set it for you.
-  typeset -g POWERLEVEL9K_MODE=nerdfont-complete
+  # Defines character set used by powerlevel10k.
+  # Auto-detect Nerd Fonts version: v3 renamed font files from "XNF" to "XNerdFont".
+  # Check standard font dirs (macOS ~/Library/Fonts, Linux /usr/share/fonts/**/,
+  # /usr/local/share/fonts/**/, ~/.local/share/fonts/**/).
+  () {
+    setopt local_options null_glob
+    local f=({~/Library/Fonts,/usr/share/fonts,/usr/local/share/fonts,~/.local/share/fonts}/**/*NerdFont*.{ttf,otf})
+    if (( $#f )); then
+      typeset -g POWERLEVEL9K_MODE=nerdfont-v3
+    else
+      typeset -g POWERLEVEL9K_MODE=nerdfont-complete
+    fi
+  }
   # When set to `moderate`, some icons will have an extra space after them. This is meant to avoid
   # icon overlap when using non-monospace fonts. When set to `none`, spaces are not added.
   typeset -g POWERLEVEL9K_ICON_PADDING=none
@@ -1624,8 +1635,12 @@
   typeset -g POWERLEVEL9K_BATTERY_{CHARGING,CHARGED}_FOREGROUND=70
   # Show battery in yellow when it's discharging.
   typeset -g POWERLEVEL9K_BATTERY_DISCONNECTED_FOREGROUND=178
-  # Battery pictograms going from low to high level of charge.
-  typeset -g POWERLEVEL9K_BATTERY_STAGES='\uf58d\uf579\uf57a\uf57b\uf57c\uf57d\uf57e\uf57f\uf580\uf581\uf578'
+  # Battery pictograms going from low to high level of charge (v2 vs v3 codepoints).
+  if [[ $POWERLEVEL9K_MODE == nerdfont-v3 ]]; then
+    typeset -g POWERLEVEL9K_BATTERY_STAGES='\UF008E\UF007A\UF007B\UF007C\UF007D\UF007E\UF007F\UF0080\UF0081\UF0082\UF0079'
+  else
+    typeset -g POWERLEVEL9K_BATTERY_STAGES='\uf58d\uf579\uf57a\uf57b\uf57c\uf57d\uf57e\uf57f\uf580\uf581\uf578'
+  fi
   # Don't show the remaining time to charge/discharge.
   typeset -g POWERLEVEL9K_BATTERY_VERBOSE=false
 
