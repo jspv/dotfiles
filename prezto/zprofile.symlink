@@ -76,14 +76,19 @@ if [[ -o INTERACTIVE && -t 2 ]]; then
   fi
 fi >&2
 
-# Show available tmux sessions on login and offer to attach
-if (( $+commands[tmux] )) && [[ -z "$TMUX" ]]; then
+# Show available tmux sessions on login and offer to attach.
+# Must be guarded on an interactive tty: zshenv sources this file for
+# non-login, non-interactive shells too, which is how scp/sftp/rsync run
+# their remote shell — any stdout here corrupts their transfer protocol.
+if [[ -o INTERACTIVE && -t 0 && -t 2 ]] && (( $+commands[tmux] )) && [[ -z "$TMUX" ]]; then
   if tmux list-sessions 2>/dev/null | grep -q .; then
-    echo "Available tmux sessions:"
-    tmux list-sessions
-    echo
+    {
+      echo "Available tmux sessions:"
+      tmux list-sessions
+      echo
+    } >&2
     read -k 1 "reply?Attach to tmux session? [y/N] "
-    echo
+    echo >&2
     if [[ "$reply" == [yY] ]]; then
       exec tmux attach
     fi
