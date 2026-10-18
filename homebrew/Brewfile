@@ -43,7 +43,9 @@ brew "nmap"
 brew "node@22"
 brew "openjdk"
 brew "pinentry-mac"
-brew "podman-compose"
+# podman-compose depends on the Homebrew podman formula, which conflicts with a
+# podman installed directly from podman.io (/opt/podman). Skip it in that case.
+brew "podman-compose" unless File.exist?("/opt/podman/bin/podman")
 brew "protobuf"
 brew "pyenv"
 brew "pygments"
@@ -57,5 +59,7 @@ cask "codex"
 cask "font-meslo-lg-nerd-font"
 cask "git-credential-manager"
 cask "monitorcontrol"
-cask "podman-desktop"
+# Skip if Podman Desktop was installed directly (app present but not brew-managed);
+# brew would fail with "already an App at ..." on every run.
+cask "podman-desktop" unless File.exist?("/Applications/Podman Desktop.app") && !Dir.exist?("#{ENV.fetch("HOMEBREW_PREFIX", "/opt/homebrew")}/Caskroom/podman-desktop")
 cask "proxy-audio-device"
