@@ -6,12 +6,14 @@
   "AIFeatureStreamingResponses": true,
   "AITermAPI": 2,
   "AIVectorStore": 0,
-  "AiMaxTokens": 400000,
-  "AiModel": "gpt-5.2",
+  "AiMaxTokens": 1050000,
+  "AiModel": "gpt-5.4",
   "AiResponseMaxTokens": 128000,
   "AitermURL": "https://api.openai.com/v1/responses",
+  "AllowClipboardAccess": true,
   "AlternateMouseScroll": true,
   "CheckTestRelease": true,
+  "CodeReviewSavedPrompts": "b'[{\"name\":\"Default\",\"uuid\":\"F2A918D6-5569-46AA-A5D8-9E73E1954B15\",\"text\":\"Review the pending changes in this repo. Flag issues a careful maintainer would block on before merge, in roughly this order:\\\\n  1. Correctness \\xe2\\x80\\x94 logic errors, broken invariants, missed edge cases, off-by-one, races, lifetime\\\\/memory bugs, error paths that swallow failures.\\\\n  2. Security \\xe2\\x80\\x94 injection, authn\\\\/authz mistakes, secret handling, unsafe deserialization, unsafe defaults, TOCTOU.\\\\n  3. Reliability & performance \\xe2\\x80\\x94 blocking the wrong thread, unbounded resource use, accidental O(N\\xc2\\xb2), retries without backoff, silent failure paths.\\\\n  4. Contract risk \\xe2\\x80\\x94 behavior changes callers rely on, silently changed defaults, broken backward compatibility, missing migrations.\\\\n\\\\nFor each finding cite `file:line`, explain *why* it is wrong (not what the code does), and propose a concrete fix when one is obvious. Be calibrated: if a finding is not high-confidence, say so or skip it. Verify claims against the actual code rather than inferring from names.\\\\n\\\\nSkip pure style, formatting, naming, and anything a linter or CI already enforces.\\\\n\\\\nIf you find nothing worth fixing, say so plainly.\"}]'",
   "Custom Color Presets": {
     "OneDark": {
       "Ansi 0 Color": {
@@ -691,6 +693,7 @@
   },
   "Default Bookmark Guid": "08C5FE57-554F-4D0E-8B36-72155BCCB74C",
   "DimOnlyText": false,
+  "EnableAPIServer": true,
   "EnableProxyIcon": false,
   "GlobalTouchBarMap": {},
   "HapticFeedbackForEsc": false,
@@ -857,6 +860,7 @@
       "Default Bookmark": "Yes",
       "Description": "Default",
       "Disable Window Resizing": true,
+      "Enable Triggers in Interactive Apps": false,
       "Flashing Bell": true,
       "Foreground Color": {
         "Blue Component": 0.6313726,
@@ -874,168 +878,7 @@
         "telnet",
         "vim"
       ],
-      "Keyboard Map": {
-        "0x2d-0x40000": {
-          "Action": 11,
-          "Text": "0x1f"
-        },
-        "0x32-0x40000": {
-          "Action": 11,
-          "Text": "0x00"
-        },
-        "0x33-0x40000": {
-          "Action": 11,
-          "Text": "0x1b"
-        },
-        "0x34-0x40000": {
-          "Action": 11,
-          "Text": "0x1c"
-        },
-        "0x35-0x40000": {
-          "Action": 11,
-          "Text": "0x1d"
-        },
-        "0x36-0x40000": {
-          "Action": 11,
-          "Text": "0x1e"
-        },
-        "0x37-0x40000": {
-          "Action": 11,
-          "Text": "0x1f"
-        },
-        "0x38-0x40000": {
-          "Action": 11,
-          "Text": "0x7f"
-        },
-        "0xf700-0x220000": {
-          "Action": 10,
-          "Text": "[1;2A"
-        },
-        "0xf700-0x240000": {
-          "Action": 10,
-          "Text": "[1;5A"
-        },
-        "0xf700-0x260000": {
-          "Action": 10,
-          "Text": "[1;6A"
-        },
-        "0xf700-0x280000": {
-          "Action": 11,
-          "Text": "0x1b 0x1b 0x5b 0x41"
-        },
-        "0xf701-0x220000": {
-          "Action": 10,
-          "Text": "[1;2B"
-        },
-        "0xf701-0x240000": {
-          "Action": 10,
-          "Text": "[1;5B"
-        },
-        "0xf701-0x260000": {
-          "Action": 10,
-          "Text": "[1;6B"
-        },
-        "0xf701-0x280000": {
-          "Action": 11,
-          "Text": "0x1b 0x1b 0x5b 0x42"
-        },
-        "0xf702-0x220000": {
-          "Action": 10,
-          "Text": "[1;2D"
-        },
-        "0xf702-0x240000": {
-          "Action": 10,
-          "Text": "[1;5D"
-        },
-        "0xf702-0x260000": {
-          "Action": 10,
-          "Text": "[1;6D"
-        },
-        "0xf702-0x280000": {
-          "Action": 11,
-          "Text": "0x1b 0x1b 0x5b 0x44"
-        },
-        "0xf703-0x220000": {
-          "Action": 10,
-          "Text": "[1;2C"
-        },
-        "0xf703-0x240000": {
-          "Action": 10,
-          "Text": "[1;5C"
-        },
-        "0xf703-0x260000": {
-          "Action": 10,
-          "Text": "[1;6C"
-        },
-        "0xf703-0x280000": {
-          "Action": 11,
-          "Text": "0x1b 0x1b 0x5b 0x43"
-        },
-        "0xf704-0x20000": {
-          "Action": 10,
-          "Text": "[1;2P"
-        },
-        "0xf705-0x20000": {
-          "Action": 10,
-          "Text": "[1;2Q"
-        },
-        "0xf706-0x20000": {
-          "Action": 10,
-          "Text": "[1;2R"
-        },
-        "0xf707-0x20000": {
-          "Action": 10,
-          "Text": "[1;2S"
-        },
-        "0xf708-0x20000": {
-          "Action": 10,
-          "Text": "[15;2~"
-        },
-        "0xf709-0x20000": {
-          "Action": 10,
-          "Text": "[17;2~"
-        },
-        "0xf70a-0x20000": {
-          "Action": 10,
-          "Text": "[18;2~"
-        },
-        "0xf70b-0x20000": {
-          "Action": 10,
-          "Text": "[19;2~"
-        },
-        "0xf70c-0x20000": {
-          "Action": 10,
-          "Text": "[20;2~"
-        },
-        "0xf70d-0x20000": {
-          "Action": 10,
-          "Text": "[21;2~"
-        },
-        "0xf70e-0x20000": {
-          "Action": 10,
-          "Text": "[23;2~"
-        },
-        "0xf70f-0x20000": {
-          "Action": 10,
-          "Text": "[24;2~"
-        },
-        "0xf729-0x20000": {
-          "Action": 10,
-          "Text": "[1;2H"
-        },
-        "0xf729-0x40000": {
-          "Action": 10,
-          "Text": "[1;5H"
-        },
-        "0xf72b-0x20000": {
-          "Action": 10,
-          "Text": "[1;2F"
-        },
-        "0xf72b-0x40000": {
-          "Action": 10,
-          "Text": "[1;5F"
-        }
-      },
+      "Keyboard Map": {},
       "Link Color": {
         "Alpha Component": 1.0,
         "Blue Component": 0.734233021736145,
@@ -2886,9 +2729,11 @@
     "Jobs",
     "Recent Directories",
     "Command History",
-    "Captured Output"
+    "Captured Output",
+    "Session Status"
   ],
   "UseBorder": false,
   "VisualIndicatorForEsc": false,
-  "WordCharacters": "/-+\\~_."
+  "WordCharacters": "/-+\\~_.",
+  "Workgroups": "b'[{\"sessions\":[{\"toolbarItems\":[{\"kind\":\"modeSwitcher\"},{\"kind\":\"gitStatus\"}],\"command\":\"\",\"mode\":\"regular\",\"uniqueIdentifier\":\"builtin.claudeCode.main\",\"displayName\":\"Chat\",\"urlString\":\"\",\"perFileCommand\":\"\",\"kind\":{\"kind\":\"root\"}},{\"toolbarItems\":[{\"kind\":\"modeSwitcher\"},{\"kind\":\"changedFileSelector\"},{\"kind\":\"gitBaseSelector\"},{\"kind\":\"navigation\"}],\"command\":\"git difftool -y -x vimdiff \\\\\\\\(gitBase)\",\"mode\":\"regular\",\"uniqueIdentifier\":\"builtin.claudeCode.diff\",\"displayName\":\"Diff\",\"parentID\":\"builtin.claudeCode.main\",\"urlString\":\"\",\"perFileCommand\":\"git difftool -y -x vimdiff \\\\\\\\(gitBase) -- \\\\\\\\(file)\",\"kind\":{\"kind\":\"peer\"}},{\"toolbarItems\":[{\"kind\":\"modeSwitcher\"},{\"kind\":\"reload\"}],\"command\":\"claude \\\\\\\\(codeReviewPrompt) --append-system-prompt-file \\'\\\\\\\\(iterm2.appBundlePath)\\\\/Contents\\\\/Resources\\\\/code-review-system-prompt.txt\\' --settings \\'\\\\\\\\(iterm2.appBundlePath)\\\\/Contents\\\\/Resources\\\\/code-review-settings.txt\\'\",\"mode\":\"codeReview\",\"uniqueIdentifier\":\"builtin.claudeCode.review\",\"displayName\":\"Code Review\",\"parentID\":\"builtin.claudeCode.main\",\"urlString\":\"\",\"perFileCommand\":\"\",\"kind\":{\"kind\":\"peer\"}}],\"name\":\"Claude Code\",\"uniqueIdentifier\":\"builtin.claudeCode\"}]'"
 }
