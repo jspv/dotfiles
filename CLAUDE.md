@@ -81,8 +81,9 @@ Load order: `zshenv` → `zprofile` → `zshrc` → `zpreztorc` → `zlogin`
 
 - **Prezto is a submodule**: lives at `prezto/prezto` in the repo. `prezto/install.sh` symlinks it to `~/.zprezto`. Initialize with `git submodule update --init --recursive`.
 - **brew wrapper**: `bin/brew` strips pyenv shims from PATH before calling brew (auto-detects location).
-- **No Brewfile**: packages are managed manually, not declaratively.
+- **Brewfile**: `homebrew/Brewfile` is tracked and `dot` runs `brew bundle` on it (macOS). Add new Homebrew dependencies there; `dot` also supports dumping the current set. Linux has no Homebrew, so installers warn about missing tools instead.
 - **config/ uses per-subdir symlinks**: `config/install.sh` creates `~/.config` if needed and symlinks each tracked subdirectory individually (not the whole `~/.config`).
+- **Claude status line**: `claude/install.sh` symlinks `claude/statusline.sh` to `~/.claude/statusline.sh` and merges only the `statusLine` key into `~/.claude/settings.json` (needs `jq`). An existing, different `statusLine` is kept and reported; `claude/install.sh --force` replaces it.
 - **Pokemonsay greeting**: login shell shows a Pokemon fortune (hostname-dependent); guarded — skipped if tools missing.
 - **`script/install` uses maxdepth 2**: install.sh files deeper than 2 levels won't be discovered.
 - **Devcontainer sharing**: repo may be bind-mounted into containers. Each environment bootstraps independently. Generated scripts go to `~/.local/bin`, not into repo.

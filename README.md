@@ -179,6 +179,23 @@ Three-pass sourcing order:
 
 Bash config lives in `bash/bash_profile.symlink` (becomes `~/.bash_profile`). It sets up its own PATH, sources `~/.aliases`, and loads `~/.bash_profile.local` if it exists. It works independently of the zsh setup.
 
+## Claude Code Status Line
+
+`claude/statusline.sh` is the Claude Code status line (POSIX `sh`). It reads Claude's status JSON on stdin and prints two lines: model | context % | git branch | path | +added/-removed, then the 5h and 7d rate limits with reset times.
+
+`claude/install.sh` (run by `dot`) does two things, both idempotent:
+
+1. Symlinks the script to `~/.claude/statusline.sh`.
+2. Merges only the `statusLine` key into `~/.claude/settings.json` with `jq` (creating the file if missing). Other settings are untouched. The command is `sh "$HOME/.claude/statusline.sh"`, so it is portable across machines. If a different `statusLine` is already set, the installer keeps it and says so; `dot` prints the kept entry and the exact command to run; `claude/install.sh --force` replaces it.
+
+Dependencies: `jq` (required; listed in `homebrew/Brewfile` for macOS; on Linux install it with your package manager, e.g. `apt install jq`. The installer skips with a warning if it's missing) and `git` (for the branch). Reset times use GNU `date -d`; the script falls back to `gdate` (`coreutils`, also in the Brewfile) and then to BSD `date -r`, so stock macOS works. Tested on macOS (gdate and BSD paths), Debian (GNU) and Alpine (busybox/musl).
+
+Test it:
+
+```bash
+echo '{"cwd":"/tmp","model":{"display_name":"X"},"rate_limits":{"five_hour":{"used_percentage":10,"resets_at":1792335600}}}' | sh ~/.claude/statusline.sh
+```
+
 ## Cross-Platform Support
 
 Scripts detect the OS and adapt:
@@ -227,6 +244,7 @@ dotfiles/
 ├── git/                 # Git config: gitconfig.symlink, gitignore.symlink
 ├── homebrew/            # Homebrew installer + path.zsh
 ├── config/              # ~/.config subdirs, symlinked individually by config/install.sh
+├── claude/              # Claude Code status line + installer (merges statusLine into settings.json)
 ├── macos/               # macOS-specific defaults (set-defaults.sh)
 ├── bash/                # Bash fallback config (bash_profile.symlink)
 ├── vim/                 # Vim config + plugins (submodules)
@@ -255,5 +273,5 @@ Initialize with `git submodule update --init --recursive` (or the git alias `git
 - **`script/install` uses maxdepth 2** — `install.sh` files deeper than 2 directory levels won't be discovered
 - **`*/*.zsh` is one level deep** — files in nested subdirs (e.g. `vim/vim.symlink/bundle/`) are not auto-sourced
 - **`bin/brew` wrapper** — strips pyenv shims from PATH before calling the real `brew` binary
-- **No Brewfile** — Homebrew packages are managed manually, not declaratively
+- **Brewfile** — `homebrew/Brewfile` is tracked; `dot` runs `brew bundle` on it (macOS only). Add new Homebrew dependencies there
 - **Devcontainer safe** — repo can be bind-mounted into containers; each environment runs `script/bootstrap` independently; generated scripts go to `~/.local/bin`, not into the repo
